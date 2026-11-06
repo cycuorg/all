@@ -1,8 +1,0 @@
-[package]
-name = "console"
-version.workspace = true
-edition.workspace = true
-
-[dependencies]
-anstream = { workspace = true }
-anstyle = { workspace = true }
