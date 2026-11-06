@@ -1,2 +1,2 @@
-# all
-包羅萬象
+# rustcms
+CMS in Rust

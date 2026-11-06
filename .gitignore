@@ -2,6 +2,5 @@
 *.lock
 config/config
 target/
-tests/
 
 

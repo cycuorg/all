@@ -13,7 +13,7 @@ fn confmenu_guest() -> &'static str {
 </ul></confmenu>"#
 }
 
-fn confmenu_admin(current_title: Option<&str>, port: u16) -> String {
+fn confmenu_admin(current_title: Option<&str>, ip: &str, port: u16) -> String {
     let edit = match current_title {
         Some(t) if !t.is_empty() => format!("/get_page/{}/1", encode_url(t)),
         _ => "/edit_all".to_string(),
@@ -33,9 +33,7 @@ fn confmenu_admin(current_title: Option<&str>, port: u16) -> String {
 <li><a href="/logout">Logout</a></li>
 <li><a href="/generate_pages">Convert</a></li>
 <li><a href="/acpform">acp</a></li>
-<li><a href="https://localhost:{port}/content/index.html" target="_blank" rel="noopener noreferrer">SStatic</a></li>
-<li><a href="/blog/index.html" target="_blank" rel="noopener noreferrer">Blog</a></li>
-    <li><a href="/public/index.html" target="_blank" rel="noopener noreferrer">Unveil</a></li>
+<li><a href="https://{ip}:{port}/content/index.html" target="_blank" rel="noopener noreferrer">Static</a></li>
 </ul></confmenu>"##
     )
 }
@@ -238,11 +236,12 @@ pub fn render_public_page(
     main_body: &str,
     is_admin: bool,
     current_title: Option<&str>,
+    ip: &str,
     port: u16,
 ) -> String {
     let side = render_side_menu(pages);
     let conf = if is_admin {
-        confmenu_admin(current_title, port)
+        confmenu_admin(current_title, ip, port)
     } else {
         confmenu_guest().to_string()
     };
@@ -311,10 +310,11 @@ pub fn render_editor_page(
     pages: &[Page],
     current_title: &str,
     editor_html: &str,
+    ip: &str,
     port: u16,
 ) -> String {
     let side = render_side_menu(pages);
-    let conf = confmenu_admin(Some(current_title), port);
+    let conf = confmenu_admin(Some(current_title), ip, port);
     format!(
         r##"<!doctype html><html><head>
 {head}

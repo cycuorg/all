@@ -14,6 +14,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 #[derive(Clone)]
 pub struct AppState {
     pub base_dir: PathBuf,
+    pub ip: String,
     pub port: u16,
     pub content_path: PathBuf,
 }
@@ -52,7 +53,12 @@ fn load_setup(base_dir: &std::path::Path) -> (String, u16) {
                 }
             }
         }
-        tracing::info!("Loaded setup from {}: ip={}, port={}", path.display(), ip, port);
+        tracing::info!(
+            "Loaded setup from {}: ip={}, port={}",
+            path.display(),
+            ip,
+            port
+        );
     } else {
         // 若檔案不存在則寫入預設值，方便之後修改
         let default = r#"ip = "127.0.0.1"
@@ -63,6 +69,16 @@ port = 5000
             "Created default {} (ip=127.0.0.1, port=5000)",
             path.display()
         );
+    }
+
+    // 環境變數可覆寫 ip
+    if let Ok(env_ip) = std::env::var("CMS_IP") {
+        let env_ip = env_ip.trim();
+
+        if !env_ip.is_empty() {
+            ip = env_ip.to_string();
+            tracing::info!("CMS_IP env overrides ip to {}", ip);
+        }
     }
 
     // 環境變數仍可覆寫 port（向後相容）
@@ -162,6 +178,7 @@ async fn main() {
     let state = AppState {
         base_dir: base_dir.clone(),
         content_path,
+        ip: bind_ip.clone(),
         port,
     };
     let app = routes::create_router(state).layer(CorsLayer::permissive());

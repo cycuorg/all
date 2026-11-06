@@ -68,6 +68,7 @@ style="width:320px;padding:6px"></p>
         &body,
         true,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
@@ -192,6 +193,7 @@ pub async fn acpform(State(state): State<AppState>, headers: HeaderMap) -> impl 
         body,
         true,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
@@ -239,12 +241,7 @@ fn ensure_git_repo(base_dir: &std::path::Path) -> Result<(), String> {
 // ============================================================
 
 /// 將 ACP 執行結果以動態編輯區（render_public_page）顯示
-fn acp_result_page(
-    state: &AppState,
-    title: &str,
-    msg: &str,
-    is_error: bool,
-) -> Response {
+fn acp_result_page(state: &AppState, title: &str, msg: &str, is_error: bool) -> Response {
     let site_title = auth::load_sitetitle(&state.base_dir);
     let pages = load_pages(&state.content_path).unwrap_or_default();
     let style = if is_error {
@@ -266,6 +263,7 @@ fn acp_result_page(
         &body,
         true,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
@@ -344,7 +342,9 @@ pub async fn do_acp(
     if !commit_output.status.success() {
         // 「nothing to commit」視為可接受的結果，繼續嘗試 push
         let nothing = combined.to_lowercase().contains("nothing to commit")
-            || combined.to_lowercase().contains("no changes added to commit");
+            || combined
+                .to_lowercase()
+                .contains("no changes added to commit");
         if nothing {
             log.push_str(&format!(
                 "git commit：工作目錄無變更（nothing to commit）\n{}\n",
@@ -372,10 +372,7 @@ pub async fn do_acp(
             return acp_result_page(
                 &state,
                 "ACP 部分完成",
-                &format!(
-                    "{}\n已完成 add/commit，但 git push 無法執行：{}",
-                    log, e
-                ),
+                &format!("{}\n已完成 add/commit，但 git push 無法執行：{}", log, e),
                 true,
             );
         }

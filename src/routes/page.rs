@@ -35,7 +35,8 @@ pub async fn index(State(state): State<AppState>, headers: HeaderMap) -> impl In
                 &body,
                 admin,
                 Some(&pages[0].title),
-                state.port
+                &state.ip,
+                state.port,
             ))
             .into_response()
         }
@@ -45,7 +46,8 @@ pub async fn index(State(state): State<AppState>, headers: HeaderMap) -> impl In
             "<p>尚無內容</p>",
             admin,
             None,
-            state.port
+            &state.ip,
+            state.port,
         ))
         .into_response(),
         Err(e) => Html(render_public_page(
@@ -54,7 +56,8 @@ pub async fn index(State(state): State<AppState>, headers: HeaderMap) -> impl In
             &format!("<pre>{}</pre>", e),
             admin,
             None,
-            state.port
+            &state.ip,
+            state.port,
         ))
         .into_response(),
     }
@@ -112,7 +115,8 @@ async fn get_page_inner(
                 &format!("<pre>{}</pre>", e),
                 admin,
                 None,
-                state.port
+                &state.ip,
+                state.port,
             ))
             .into_response();
         }
@@ -134,7 +138,8 @@ async fn get_page_inner(
                 &format!("<p>找不到：{}</p>", escape_html(&heading)),
                 admin,
                 None,
-                state.port
+                &state.ip,
+                state.port,
             )),
         )
             .into_response();
@@ -183,7 +188,8 @@ async fn get_page_inner(
             &pages,
             &page.title,
             &editor_html,
-            state.port
+            &state.ip,
+            state.port,
         ))
         .into_response();
     }
@@ -202,7 +208,8 @@ async fn get_page_inner(
         &body,
         admin,
         Some(&page.title),
-        state.port
+        &state.ip,
+        state.port,
     ))
     .into_response()
 }
@@ -222,7 +229,10 @@ pub async fn sitemap(State(state): State<AppState>, headers: HeaderMap) -> impl 
                 ));
             }
             body.push_str("</ul>");
-            Html(render_public_page(&title, &pages, &body, admin, None, state.port)).into_response()
+            Html(render_public_page(
+                &title, &pages, &body, admin, None, &state.ip, state.port,
+            ))
+            .into_response()
         }
         Err(e) => Html(render_public_page(
             &title,
@@ -230,7 +240,8 @@ pub async fn sitemap(State(state): State<AppState>, headers: HeaderMap) -> impl 
             &format!("<pre>{}</pre>", e),
             admin,
             None,
-            state.port
+            &state.ip,
+            state.port,
         ))
         .into_response(),
     }
@@ -271,7 +282,10 @@ pub async fn search(
                 }
                 body.push_str("</ul>");
             }
-            Html(render_public_page(&title, &pages, &body, admin, None, state.port)).into_response()
+            Html(render_public_page(
+                &title, &pages, &body, admin, None, &state.ip, state.port,
+            ))
+            .into_response()
         }
         Err(e) => Html(render_public_page(
             &title,
@@ -279,7 +293,8 @@ pub async fn search(
             &format!("<pre>{}</pre>", e),
             admin,
             None,
-            state.port
+            &state.ip,
+            state.port,
         ))
         .into_response(),
     }
@@ -315,6 +330,7 @@ pub async fn login_page(State(state): State<AppState>, headers: HeaderMap) -> im
         &login_form_body(None),
         false,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
@@ -342,6 +358,7 @@ pub async fn check_login(State(state): State<AppState>, Form(form): Form<LoginFo
             &login_form_body(Some("密碼錯誤")),
             false,
             None,
+            &state.ip,
             state.port,
         ))
         .into_response()

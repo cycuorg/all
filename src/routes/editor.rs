@@ -10,8 +10,7 @@ use std::fs;
 
 use crate::auth::{self, is_admin};
 use crate::content::{
-    encode_url, escape_html, file_get_contents, list_files, load_pages,
-    normalize_preformatted_html,
+    encode_url, escape_html, file_get_contents, list_files, load_pages, normalize_preformatted_html,
 };
 use crate::templates::{render_edit_prev_next, render_editor_page, render_simple_message};
 use crate::AppState;
@@ -110,6 +109,7 @@ pub async fn edit_all(
         &pages,
         cur,
         &editor_html,
+        &state.ip,
         state.port,
     ))
     .into_response()

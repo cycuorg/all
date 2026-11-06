@@ -1,5 +1,0 @@
-name = "unveil"
-language = "EN"
-slides = ["landing.md"]
-gitignore = true
-theme = "default"

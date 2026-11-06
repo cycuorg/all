@@ -113,6 +113,7 @@ pub async fn image_list(
         &body,
         true,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
@@ -164,6 +165,7 @@ pub async fn download_list(
         &body,
         true,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
@@ -182,7 +184,16 @@ pub async fn image_upload_form(
         "<h2>IUpload</h2>{}",
         multi_chunk_ui("/imageaxupload", "img")
     );
-    Html(render_public_page(&site_title, &pages, &body, true, None, state.port)).into_response()
+    Html(render_public_page(
+        &site_title,
+        &pages,
+        &body,
+        true,
+        None,
+        &state.ip,
+        state.port,
+    ))
+    .into_response()
 }
 
 pub async fn file_upload_form(
@@ -198,7 +209,16 @@ pub async fn file_upload_form(
         "<h2>FUpload</h2>{}",
         multi_chunk_ui("/fileaxupload", "file")
     );
-    Html(render_public_page(&site_title, &pages, &body, true, None, state.port)).into_response()
+    Html(render_public_page(
+        &site_title,
+        &pages,
+        &body,
+        true,
+        None,
+        &state.ip,
+        state.port,
+    ))
+    .into_response()
 }
 
 #[derive(Deserialize)]
@@ -300,11 +320,7 @@ pub async fn delete_file(
     };
 
     if !allowed || safe.is_empty() {
-        let loc = format!(
-            "{}?error={}",
-            list_path,
-            urlencoding_encode("不合法參數")
-        );
+        let loc = format!("{}?error={}", list_path, urlencoding_encode("不合法參數"));
         return Response::builder()
             .status(StatusCode::FOUND)
             .header(header::LOCATION, loc)
@@ -314,11 +330,7 @@ pub async fn delete_file(
 
     match fs::remove_file(state.base_dir.join(&form.dir).join(&safe)) {
         Ok(_) => {
-            let loc = format!(
-                "{}?deleted={}",
-                list_path,
-                urlencoding_encode(&safe)
-            );
+            let loc = format!("{}?deleted={}", list_path, urlencoding_encode(&safe));
             Response::builder()
                 .status(StatusCode::FOUND)
                 .header(header::LOCATION, loc)
@@ -326,11 +338,7 @@ pub async fn delete_file(
                 .unwrap()
         }
         Err(e) => {
-            let loc = format!(
-                "{}?error={}",
-                list_path,
-                urlencoding_encode(&e.to_string())
-            );
+            let loc = format!("{}?error={}", list_path, urlencoding_encode(&e.to_string()));
             Response::builder()
                 .status(StatusCode::FOUND)
                 .header(header::LOCATION, loc)

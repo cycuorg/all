@@ -284,8 +284,6 @@ fn navigation_links(pages: &[Page]) -> String {
 <a href="index.html">Home</a>
 <ul class="dropdown">
 <li><a href="sitemap.html">SMap</a></li>
-<li><a href="/blog/index.html">Blog</a></li>
-<li><a href="/public/index.html">Unveil</a></li>
 </ul>
 </li>
 "#,
@@ -507,6 +505,7 @@ pub async fn generate_pages(
         &body,
         true,
         None,
+        &state.ip,
         state.port,
     ))
     .into_response()
