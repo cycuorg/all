@@ -26,7 +26,7 @@ fn fix_static_paths(html: &str) -> String {
         .replace("data-dirname=\"/static\"", "data-dirname=\"./../static\"")
 }
 
-fn html_header(title: &str) -> String {
+fn html_header(title: &str, site_title: &str) -> String {
     format!(
         r##"<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -158,7 +158,7 @@ pre, pre code, .syntaxhighlighter .line, .syntaxhighlighter table td.code .line 
 <header class="site-navbar py-4 bg-white" role="banner">
   <div class="container">
     <div class="row align-items-center">
-      <h1>Dialog</h1>
+      <h1>{site_title}</h1>
 
       <div class="pl-4">
         <form action="#" onsubmit="return false;">
@@ -331,10 +331,10 @@ fn render_previous_next(index: usize, pages: &[Page]) -> String {
     output
 }
 
-fn render_page(index: usize, pages: &[Page]) -> String {
+fn render_page(index: usize, pages: &[Page], site_title: &str) -> String {
     let page = &pages[index];
 
-    let mut output = html_header(&page.title);
+    let mut output = html_header(&page.title, site_title);
 
     output = output.replace(
         "<!-- NAVIGATION_MENU_INSERTED_BY_CONVERTER -->",
@@ -379,8 +379,8 @@ fn render_page(index: usize, pages: &[Page]) -> String {
     output
 }
 
-fn render_index(pages: &[Page]) -> String {
-    render_page(0, pages)
+fn render_index(pages: &[Page], site_title: &str) -> String {
+    render_page(0, pages, site_title)
 }
 
 /// 以巢狀 unordered list 呈現 h1 / h2 / h3 階層（對齊動態站 SMap 的階層語意）
@@ -402,8 +402,8 @@ fn render_sitemap_nodes(nodes: &[NavNode], pages: &[Page], output: &mut String) 
     }
 }
 
-fn render_sitemap(pages: &[Page]) -> String {
-    let mut output = html_header("網站地圖");
+fn render_sitemap(pages: &[Page], site_title: &str) -> String {
+    let mut output = html_header("網站地圖", site_title);
 
     output = output.replace(
         "<!-- NAVIGATION_MENU_INSERTED_BY_CONVERTER -->",
@@ -420,7 +420,7 @@ fn render_sitemap(pages: &[Page]) -> String {
 
     output
 }
-fn do_generate(state: &AppState) -> Result<String, Box<dyn Error>> {
+fn do_generate(state: &AppState, site_title: &str) -> Result<String, Box<dyn Error>> {
     println!("讀取：{}", state.content_path.display());
 
     let pages = load_pages(&state.content_path)?;
@@ -438,7 +438,7 @@ fn do_generate(state: &AppState) -> Result<String, Box<dyn Error>> {
     for (index, page) in pages.iter().enumerate() {
         let output_path = output_dir.join(&page.filename);
 
-        fs::write(&output_path, render_page(index, &pages))?;
+        fs::write(&output_path, render_page(index, &pages, site_title))?;
 
         search_pages.push(SearchPage {
             title: page.title.clone(),
@@ -450,11 +450,11 @@ fn do_generate(state: &AppState) -> Result<String, Box<dyn Error>> {
         log.push_str(&format!("產生：{}\n", page.filename));
     }
 
-    fs::write(output_dir.join("index.html"), render_index(&pages))?;
+    fs::write(output_dir.join("index.html"), render_index(&pages, site_title))?;
 
     log.push_str("產生：index.html\n");
 
-    fs::write(output_dir.join("sitemap.html"), render_sitemap(&pages))?;
+    fs::write(output_dir.join("sitemap.html"), render_sitemap(&pages, site_title))?;
 
     log.push_str("產生：sitemap.html\n");
 
@@ -486,7 +486,7 @@ pub async fn generate_pages(
     let site_title = auth::load_sitetitle(&state.base_dir);
     let pages = load_pages(&state.content_path).unwrap_or_default();
 
-    let body = match do_generate(&state) {
+    let body = match do_generate(&state, &site_title) {
         Ok(msg) => format!(
             r#"<h2>Convert 完成</h2>
 <pre style="white-space:pre-wrap;background:#f5f5f5;padding:12px;border-radius:4px">{}</pre>"#,
