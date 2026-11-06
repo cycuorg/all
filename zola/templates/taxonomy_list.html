@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if taxonomy.name == "tags" %}標籤{% elif taxonomy.name == "categories" %}分類{% else %}{{ taxonomy.name }}{% endif %} · {{ config.title }}
+{% endblock title %}
+
+{% block content %}
+<section class="taxonomy-list">
+    <h1>
+        {% if taxonomy.name == "tags" %}文章標籤
+        {% elif taxonomy.name == "categories" %}文章分類
+        {% else %}{{ taxonomy.name }}{% endif %}
+    </h1>
+    <ul class="term-list">
+        {% for term in terms %}
+        <li>
+            <a href="{{ term.permalink | safe }}">{{ term.name }}</a>
+            <span class="count">({{ term.page_count }})</span>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock content %}

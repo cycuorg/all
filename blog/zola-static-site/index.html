@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="介紹 Zola 靜態站產生器的優點，以及如何開啟搜尋、分類與中文支援">
+    <title>用 Zola 打造極速中文部落格 · Rust CMS Blog</title>
+    <link rel="stylesheet" href="/blog/css/blog.css">
+    <link rel="alternate" type="application/atom+xml" title="Rust CMS Blog" href="/blog/atom.xml">
+    
+    <script defer src="/blog/js/search.js"></script>
+    
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="brand">
+                <h1><a href="/blog">Rust CMS Blog</a></h1>
+                <p class="tagline">Rust、Python 與程式設計技術筆記</p>
+            </div>
+            <nav class="main-nav">
+                <a href="/blog/./..">CMS</a>
+                <a href="/blog/./../public/index.html">Unveil</a>
+                <a href="/blog">Blog 首頁</a>
+                <a href="/blog/tags">標籤</a>
+                <a href="/blog/categories">分類</a>
+                <a href="/blog/atom.xml">訂閱</a>
+            </nav>
+            
+            <div class="search-box" data-index-url="/blog/search_index.zh.json">
+                <input type="search" id="search" placeholder="搜尋文章…" autocomplete="off" aria-label="搜尋">
+                <div class="search-results" id="search-results" hidden>
+                    <div class="search-results__items"></div>
+                </div>
+            </div>
+            
+        </div>
+    </header>
+
+    <main class="site-main">
+        
+<article class="post">
+    <header class="post-header">
+        <h1>用 Zola 打造極速中文部落格</h1>
+        <div class="meta">
+            
+            <time datetime="2026-11-01">發表於 2026 年 11 月 01 日</time>
+            
+            
+            <span class="categories">
+                
+                <a href="/blog/categories/wang-zhan-kai-fa/">網站開發</a>
+                
+            </span>
+            
+        </div>
+        
+        <div class="tags">
+            
+            <a href="/blog/tags/zola/" class="tag">#Zola</a>
+            
+            <a href="/blog/tags/rust/" class="tag">#Rust</a>
+            
+            <a href="/blog/tags/jing-tai-wang-zhan/" class="tag">#靜態網站</a>
+            
+        </div>
+        
+    </header>
+
+    <div class="post-content">
+        <h1 id="yong-zola-da-zao-ji-su-zhong-wen-bu-luo-ge">用 Zola 打造極速中文部落格</h1>
+<p><a rel="external" href="https://www.getzola.org/">Zola</a> 是用 Rust 寫成的靜態網站產生器，單一執行檔、速度快、功能齊全。</p>
+<h2 id="wei-shen-mo-xuan-zola">為什麼選 Zola？</h2>
+<ul>
+<li><strong>單一 binary</strong>：無需 Node.js 或一堆依賴</li>
+<li><strong>內建搜尋索引</strong>：支援 elasticlunr 與 fuse</li>
+<li><strong>語法高亮、Sass、短代碼</strong> 都內建</li>
+<li><strong>Taxonomies</strong>（標籤 / 分類）原生支援</li>
+<li>建置速度極快</li>
+</ul>
+<h2 id="kai-qi-sou-xun-de-guan-jian-she-ding">開啟搜尋的關鍵設定</h2>
+<pre class="giallo" style="color: #E1E4E8; background-color: #24292E;" ><code data-lang="toml"><span class="giallo-l"><span>build_search_index =</span><span style="color: #79B8FF;"> true</span></span>
+<span class="giallo-l"></span>
+<span class="giallo-l"><span>[</span><span style="color: #B392F0;">search</span><span>]</span></span>
+<span class="giallo-l"><span>include_title =</span><span style="color: #79B8FF;"> true</span></span>
+<span class="giallo-l"><span>include_description =</span><span style="color: #79B8FF;"> true</span></span>
+<span class="giallo-l"><span>include_content =</span><span style="color: #79B8FF;"> true</span></span>
+<span class="giallo-l"><span>index_format =</span><span style="color: #9ECBFF;"> &quot;elasticlunr_json&quot;</span></span></code></pre>
+<p>建置後會產生 <code>search_index.zh-TW.json</code> 與 <code>elasticlunr.min.js</code>。前端再搭配簡單的 JavaScript 即可完成即時搜尋。</p>
+<h2 id="zhong-wen-zhu-yi-shi-xiang">中文注意事項</h2>
+<p>預設官方 binary 未內建中文分詞（為控制體積）。若需要更好的中文搜尋效果，可自行編譯：</p>
+<pre class="giallo" style="color: #E1E4E8; background-color: #24292E;" ><code data-lang="shellscript"><span class="giallo-l"><span style="color: #B392F0;">cargo</span><span style="color: #9ECBFF;"> install</span><span style="color: #79B8FF;"> --git</span><span style="color: #9ECBFF;"> https://github.com/getzola/zola.git</span><span style="color: #79B8FF;"> --features</span><span style="color: #9ECBFF;"> indexing-zh zola</span></span></code></pre>
+<p>語言代碼建議使用 <code>zh</code> 或 <code>zh-TW</code>，並在模板中正確載入對應的索引檔。</p>
+<h2 id="ben-zhan-shi-zuo-zhong-dian">本站實作重點</h2>
+<p>本站已整合：</p>
+<ul>
+<li>Elasticlunr 全文搜尋</li>
+<li>標籤與分類頁面</li>
+<li>Atom Feed</li>
+<li>響應式現代介面</li>
+<li>程式碼高亮</li>
+</ul>
+<p>非常適合用來記錄技術筆記與個人部落格。</p>
+
+    </div>
+</article>
+
+    </main>
+
+    <footer class="site-footer">
+        <p>© 2026 Rust CMS · Powered by <a href="https://www.getzola.org/">Zola</a></p>
+    </footer>
+</body>
+</html>

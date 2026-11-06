@@ -1,0 +1,44 @@
+[package]
+name = "site"
+version.workspace = true
+authors = ["Vincent Prouillet <prouillet.vincent@gmail.com>"]
+edition.workspace = true
+include = ["src/**/*"]
+
+[dependencies]
+serde = { workspace = true }
+fs-err = { workspace = true }
+globset = { workspace = true }
+grass = { workspace = true }
+log = { workspace = true }
+minify-html = { workspace = true }
+rayon = { workspace = true }
+relative-path = { workspace = true }
+tera = { workspace = true }
+url = { workspace = true }
+walkdir = { workspace = true }
+time = { workspace = true, features = ["formatting"] }
+
+errors = { workspace = true }
+config = { workspace = true }
+utils = { workspace = true }
+templates = { workspace = true }
+search = { workspace = true }
+imageproc = { workspace = true }
+link_checker = { workspace = true }
+content = { workspace = true }
+render = { workspace = true }
+markdown = { workspace = true }
+memchr = { workspace = true }
+ahash = { workspace = true }
+regex = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
+path-slash = "0.2"
+insta = { workspace = true }
+criterion = "0.8"
+
+[[bench]]
+name = "load"
+harness = false

@@ -1,0 +1,261 @@
++++
+title = "Image processing"
+weight = 120
++++
+
+Zola provides support for automatic image resizing through the built-in function `resize_image`,
+which is available in all template code including content.
+
+The function usage is as follows:
+
+```jinja
+resize_image(path, width, height, op, format, quality, speed, filter)
+```
+
+### Arguments
+
+- `path`: The path to the source image. The following directories will be searched, in this order:
+    - `/` (the root of the project; that is, the directory with your `zola.toml`)
+    - `/static`
+    - `/content`
+    - `/public`
+    - `/themes/current-theme/static`
+- `width` and `height`: The dimensions in pixels of the resized image. Usage depends on the `op` argument.
+- `op` (_optional_): Resize operation. This can be one of:
+    - `"scale"`
+    - `"fit_width"`
+    - `"fit_height"`
+    - `"fit"`
+    - `"fill"`
+
+  What each of these does is explained below. The default is `"fill"`.
+- `format` (_optional_): Encoding format of the resized image. May be one of:
+    - `"auto"`
+    - `"jpg"`
+    - `"png"`
+    - `"webp"`
+    - `"avif"`
+
+  The default is `"auto"`, this means that the format is chosen based on input image format.
+  JPEG is chosen for JPEGs and other lossy formats, and PNG is chosen for PNGs and other lossless formats.
+- `quality` (_optional_): Quality of the resized image. Quality is only used when encoding JPEGs, WebPs or AVIFs. Quality for JPEG ranges from 1 to 100 and defaults to 75. Quality for WebP ranges from 0 to 100 and defaults to lossless encoding. Quality for AVIF ranges from 1 to 100 and defaults to 80.
+- `speed` (_optional_): Speed of encoding the resized image. Speed is only used when encoding AVIFs. Speed for AVIF ranges from 1 to 10 and defaults to 5. Speed 10 should process images the fastest, but may not produce the best compression; speed 1 is much slower but produces the best compression.
+- `filter` (_optional_): Resize filter. This can be one of:
+  - `"lanczos3"`
+  - `"nearest"`
+  - `"triangle"`
+  - `"catmullrom"`
+  - `"gaussian"`
+
+  The default is `"lanczos3"`, which produces smooth resizing generally free of visible artifacts. The filters are further detailed in a later section.
+
+### Image processing and return value
+
+Zola performs image processing during the build process and places the resized images in a subdirectory in the static files directory:
+
+```
+static/processed_images/
+```
+
+The filename of each resized image is a hash of the function arguments,
+which means that once an image is resized in a certain way, it will be stored in the above directory and will not
+need to be resized again during subsequent builds (unless the image itself, the dimensions, or other arguments have changed).
+
+The function returns an object with the following schema:
+
+```
+/// The final URL for that asset
+url: String,
+/// The path to the static asset generated
+static_path: String,
+/// New image width
+width: u32,
+/// New image height
+height: u32,
+/// Original image width
+orig_width: u32,
+/// Original image height
+orig_height: u32,
+```
+
+### Color and metadata
+
+All EXIF, XMP, and IPTC metadata is discarded during processing.
+
+Zola tries to preserve image color space information as much as possible.
+The following limitations apply:
+- Only ICC-based color data is preserved.
+- For WebP, only lossless encoding supports ICC profiles.
+- AVIF encoding does not currently support ICC profiles.
+
+If the color space were to be lost, a warning is printed.
+The image is converted regardless, without proper color conversion.
+Therefore, if the source color space and the default color space of the target format (usually sRGB or Rec.709) do not match, colors will appear incorrect.
+
+Zola performs image processing on the raw pixel data, without taking the color space into account.
+This is not usually an issue, but non-linear color spaces (including sRGB, Rec.709, AdobeRGB, Display P3, and non-linear Rec2020) may exhibit imprecise color blending, especially when scaling up low-resolution images.
+
+## Resize operations
+
+The source for all examples is this 300 pixel × 380 pixel image:
+
+![zola](01-zola.png)
+
+These examples all use the default `"lanczos3"` resize filter.
+
+### **`"scale"`**
+  Simply scales the image to the specified dimensions (`width` & `height`) irrespective of the aspect ratio.
+
+  `resize_image(..., width=150, height=150, op="scale")`
+
+  {{ <resize_image path="documentation/content/image-processing/01-zola.png" width={150} height={150} op="scale" /> }}
+
+### **`"fit_width"`**
+  Resizes the image such that the resulting width is `width` and height is whatever will preserve the aspect ratio.
+  The `height` argument is not needed.
+
+  `resize_image(..., width=100, op="fit_width")`
+
+  {{ <resize_image path="documentation/content/image-processing/01-zola.png" width={100} height={0} op="fit_width" /> }}
+
+### **`"fit_height"`**
+  Resizes the image such that the resulting height is `height` and width is whatever will preserve the aspect ratio.
+  The `width` argument is not needed.
+
+  `resize_image(..., height=150, op="fit_height")`
+
+  {{ <resize_image path="documentation/content/image-processing/01-zola.png" width={0} height={150} op="fit_height" /> }}
+
+### **`"fit"`**
+  Like `"fit_width"` and `"fit_height"` combined, but only resize if the image is bigger than any of the specified dimensions.
+  This mode is handy, if for example images are automatically shrunk to certain sizes for mobile optimization.
+  Resizes the image such that the result fits within `width` and `height` while preserving the aspect ratio. This
+  means that both width or height will be at max `width` and `height`, respectively, but possibly one of them
+  smaller to preserve the aspect ratio.
+
+
+  `resize_image(..., width=5000, height=5000, op="fit")`
+
+  {{ <resize_image path="documentation/content/image-processing/01-zola.png" width={5000} height={5000} op="fit" /> }}
+
+  `resize_image(..., width=150, height=150, op="fit")`
+
+  {{ <resize_image path="documentation/content/image-processing/01-zola.png" width={150} height={150} op="fit" /> }}
+
+### **`"fill"`**
+  This is the default operation. It takes the image's center part with the same aspect ratio as the `width` and
+  `height` given and resizes that to `width` and `height`. This means that parts of the image that are outside
+  of the resized aspect ratio are cropped away.
+
+  `resize_image(..., width=150, height=150, op="fill")`
+
+  {{ <resize_image path="documentation/content/image-processing/01-zola.png" width={150} height={150} op="fill" /> }}
+
+## Resize filters
+
+Depending on the image content, different filters may produce better results. 
+Below are all the filters applied to two images. 
+From left to right, the filters are `lanczos3`, `nearest`, `triangle`, `catmull_rom`, and `gaussian`. 
+It can be seen that `gaussian` and `triangle` filters tend to have softer results, whereas `lanczos3` and `catmull_rom` better preserve small details. 
+`nearest` is a good option for images of a pixel art style, as no interpolation is performed between neighboring pixels.
+
+{{ <filters path="documentation/content/image-processing/01-zola.png" /> }}
+
+{{ <filters path="documentation/content/image-processing/knight.png" /> }}
+
+## Creating picture galleries
+
+The `resize_image()` can be used multiple times and/or in loops. It is designed to handle this efficiently.
+
+This can be used along with `assets` [page metadata](@/documentation/templates/pages-sections.md) to create picture galleries.
+The `assets` variable holds paths to all assets in the directory of a page with resources
+(see [asset colocation](@/documentation/content/overview.md#asset-colocation)); if you have files other than images you
+will need to filter them out in the loop first like in the example below.
+
+For example, we can create a very simple html-only clickable
+picture gallery with the following component named `gallery`:
+
+```jinja
+{% raw -%}
+{% component gallery(page) -%}
+<div>
+{% for asset in page.assets -%}
+  {%- if asset is matching(pat="[.](jpg|png)$") -%}
+    {% set image = resize_image(path=asset, width=240, height=180) %}
+    <a href="{{ get_url(path=asset) }}" target="_blank">
+      <img src="{{ image.url }}" />
+    </a>
+  {%- endif %}
+{%- endfor %}
+</div>
+{%- endcomponent %}
+{%- endraw %}
+```
+
+As you can notice, we didn't specify an `op` argument, which means that it'll default to `"fill"`. Similarly,
+the format will default to `"auto"` (choosing PNG or JPEG as appropriate) and the JPEG quality will default to `75`.
+
+To call it from a Markdown file, simply do:
+
+```jinja
+{% raw -%}
+{{ <gallery page /> }}
+{%- endraw %}
+```
+
+Here is the result:
+
+{{ <gallery page /> }}
+
+<small>
+  Image attribution: Public domain, except: _06-example.jpg_: Willi Heidelbach, _07-example.jpg_: Daniel Ullrich.
+</small>
+
+
+## Get image size and relative resizing
+
+Sometimes when building a gallery it is useful to know the dimensions of each asset.  You can get this information with
+[get_image_metadata](@/documentation/templates/overview.md#get-image-metadata).
+
+This can also be useful in combination with `resize_image()` to do relative resizing. We can create a component named `resize_image_relative`:
+
+```jinja
+{% raw -%}
+{% component resize_image_relative(path: string, scale: float) -%}
+{% set mdata = get_image_metadata(path=path) %}
+{% set image = resize_image(path=path, width=(mdata.width * scale)|int, op="fit_width") %}
+<img src="{{ image.url }}" />
+{%- endcomponent %}
+{%- endraw %}
+```
+
+It can be invoked from Markdown like this:
+
+```jinja
+{% raw -%}
+{{ <resize_image_relative path="documentation/content/image-processing/01-zola.png" scale={0.5} /> }}
+{%- endraw %}
+```
+
+{{ <resize_image_relative path="documentation/content/image-processing/01-zola.png" scale={0.5} /> }}
+
+## Creating scaled-down versions of high-resolution images
+
+With the above, we can also create a component that creates a 50% scaled-down version of a high-resolution image (e.g. screenshots taken on Retina Macs), 
+along with the proper HTML5 `srcset` for the original image to be displayed on high-resolution / retina displays.
+
+Consider the following component named `high_res_image`:
+
+```jinja
+{% raw -%}
+{% component high_res_image(path: string) -%}
+{% set mdata = get_image_metadata(path=path) %}
+{% set w = (mdata.width / 2) | round %}
+{% set h = (mdata.height / 2) | round %}
+{% set image = resize_image(path=path, width=w, height=h, op="fit_width") %}
+<img src="{{ image.url }}" srcset="/{{path}} 2x"/>
+{%- endcomponent %}
+{%- endraw %}
+```
+
+{{ <high_res_image path="documentation/content/image-processing/08-example.jpg" /> }}

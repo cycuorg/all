@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config.title }}{% endblock title %}
+
+{% block content %}
+<section class="hero">
+    <h2>{{ section.title }}</h2>
+    <div class="hero-content">
+        {{ section.content | safe }}
+    </div>
+</section>
+
+<section class="post-list">
+    <h2>最新文章</h2>
+    {% if section.pages %}
+    <ul class="posts">
+        {% for page in section.pages %}
+        <li class="post-card">
+            <h3><a href="{{ page.permalink | safe }}">{{ page.title }}</a></h3>
+            <div class="meta">
+                {% if page.date %}
+                <time datetime="{{ page.date }}">{{ page.date | date(format="%Y-%m-%d") }}</time>
+                {% endif %}
+                {% if page.taxonomies.tags %}
+                <span class="tags">
+                    {% for tag in page.taxonomies.tags %}
+                    <a href="{{ get_taxonomy_url(kind='tags', name=tag) | safe }}" class="tag">#{{ tag }}</a>
+                    {% endfor %}
+                </span>
+                {% endif %}
+            </div>
+            {% if page.description %}
+            <p class="summary">{{ page.description }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>目前尚無文章。</p>
+    {% endif %}
+</section>
+{% endblock content %}

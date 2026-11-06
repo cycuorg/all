@@ -1,0 +1,5 @@
+name = "unveil demo"
+language = "EN"
+slides = ["01_landing.md", "02_hljs.md", "03_quotes.md", "04_ordering.md", "05_transitions.md", "06_scss.md", "07_md_extension.md", "08_contributing.md"]
+gitignore = true
+theme = "default"

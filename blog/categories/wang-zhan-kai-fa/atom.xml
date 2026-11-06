@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh">
+    <title>Rust CMS Blog - 網站開發</title>
+    <subtitle>Rust、Python 與程式設計技術筆記</subtitle>
+    <link rel="self" type="application/atom+xml" href="/blog/categories/wang-zhan-kai-fa/atom.xml"/>
+    <link rel="alternate" type="text/html" href="/blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2026-11-01T00:00:00+00:00</updated>
+    <id>/blog/categories/wang-zhan-kai-fa/atom.xml</id>
+    <entry xml:lang="zh">
+        <title>用 Zola 打造極速中文部落格</title>
+        <published>2026-11-01T00:00:00+00:00</published>
+        <updated>2026-11-01T00:00:00+00:00</updated>
+        
+        <author>
+          <name>Unknown</name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="/blog/zola-static-site/"/>
+        <id>/blog/zola-static-site/</id>
+        
+        <content type="html" xml:base="/blog/zola-static-site/">&lt;h1 id=&quot;yong-zola-da-zao-ji-su-zhong-wen-bu-luo-ge&quot;&gt;用 Zola 打造極速中文部落格&lt;/h1&gt;
+&lt;p&gt;&lt;a rel=&quot;external&quot; href=&quot;https://www.getzola.org/&quot;&gt;Zola&lt;/a&gt; 是用 Rust 寫成的靜態網站產生器，單一執行檔、速度快、功能齊全。&lt;/p&gt;
+&lt;h2 id=&quot;wei-shen-mo-xuan-zola&quot;&gt;為什麼選 Zola？&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;單一 binary&lt;/strong&gt;：無需 Node.js 或一堆依賴&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;內建搜尋索引&lt;/strong&gt;：支援 elasticlunr 與 fuse&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;語法高亮、Sass、短代碼&lt;/strong&gt; 都內建&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Taxonomies&lt;/strong&gt;（標籤 / 分類）原生支援&lt;/li&gt;
+&lt;li&gt;建置速度極快&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;kai-qi-sou-xun-de-guan-jian-she-ding&quot;&gt;開啟搜尋的關鍵設定&lt;/h2&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #E1E4E8; background-color: #24292E;&quot; &gt;&lt;code data-lang=&quot;toml&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;build_search_index =&lt;/span&gt;&lt;span style=&quot;color: #79B8FF;&quot;&gt; true&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;[&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;search&lt;/span&gt;&lt;span&gt;]&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;include_title =&lt;/span&gt;&lt;span style=&quot;color: #79B8FF;&quot;&gt; true&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;include_description =&lt;/span&gt;&lt;span style=&quot;color: #79B8FF;&quot;&gt; true&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;include_content =&lt;/span&gt;&lt;span style=&quot;color: #79B8FF;&quot;&gt; true&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;index_format =&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt; &amp;quot;elasticlunr_json&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;建置後會產生 &lt;code&gt;search_index.zh-TW.json&lt;/code&gt; 與 &lt;code&gt;elasticlunr.min.js&lt;/code&gt;。前端再搭配簡單的 JavaScript 即可完成即時搜尋。&lt;/p&gt;
+&lt;h2 id=&quot;zhong-wen-zhu-yi-shi-xiang&quot;&gt;中文注意事項&lt;/h2&gt;
+&lt;p&gt;預設官方 binary 未內建中文分詞（為控制體積）。若需要更好的中文搜尋效果，可自行編譯：&lt;/p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #E1E4E8; background-color: #24292E;&quot; &gt;&lt;code data-lang=&quot;shellscript&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;cargo&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt; install&lt;/span&gt;&lt;span style=&quot;color: #79B8FF;&quot;&gt; --git&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt; https://github.com/getzola/zola.git&lt;/span&gt;&lt;span style=&quot;color: #79B8FF;&quot;&gt; --features&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt; indexing-zh zola&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;語言代碼建議使用 &lt;code&gt;zh&lt;/code&gt; 或 &lt;code&gt;zh-TW&lt;/code&gt;，並在模板中正確載入對應的索引檔。&lt;/p&gt;
+&lt;h2 id=&quot;ben-zhan-shi-zuo-zhong-dian&quot;&gt;本站實作重點&lt;/h2&gt;
+&lt;p&gt;本站已整合：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Elasticlunr 全文搜尋&lt;/li&gt;
+&lt;li&gt;標籤與分類頁面&lt;/li&gt;
+&lt;li&gt;Atom Feed&lt;/li&gt;
+&lt;li&gt;響應式現代介面&lt;/li&gt;
+&lt;li&gt;程式碼高亮&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;非常適合用來記錄技術筆記與個人部落格。&lt;/p&gt;
+</content>
+        
+    </entry>
+</feed>

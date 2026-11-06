@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
+    <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <link rel="stylesheet" href="{{ get_url(path='css/blog.css') | safe }}">
+    <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ get_url(path='atom.xml') | safe }}">
+    {% if config.extra.enable_search %}
+    <script defer src="{{ get_url(path='js/search.js') | safe }}"></script>
+    {% endif %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="brand">
+                <h1><a href="{{ get_url(path='/') }}">{{ config.title }}</a></h1>
+                <p class="tagline">{{ config.description }}</p>
+            </div>
+            <nav class="main-nav">
+                <a href="{{ get_url(path='./../') }}">CMS</a>
+                <a href="{{ get_url(path='./../public/index.html') }}">Unveil</a>
+                <a href="{{ get_url(path='/') }}">Blog 首頁</a>
+                <a href="{{ get_url(path='tags/') }}">標籤</a>
+                <a href="{{ get_url(path='categories/') }}">分類</a>
+                <a href="{{ get_url(path='atom.xml') }}">訂閱</a>
+            </nav>
+            {% if config.extra.enable_search %}
+            <div class="search-box" data-index-url="{{ get_url(path='search_index.zh.json') | safe }}">
+                <input type="search" id="search" placeholder="搜尋文章…" autocomplete="off" aria-label="搜尋">
+                <div class="search-results" id="search-results" hidden>
+                    <div class="search-results__items"></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="site-main">
+        {% block content %}{% endblock content %}
+    </main>
+
+    <footer class="site-footer">
+        <p>© {{ now() | date(format="%Y") }} {{ config.extra.author | default(value=config.title) }} · Powered by <a href="https://www.getzola.org/">Zola</a></p>
+    </footer>
+</body>
+</html>

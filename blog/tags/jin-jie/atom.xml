@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh">
+    <title>Rust CMS Blog - 進階</title>
+    <subtitle>Rust、Python 與程式設計技術筆記</subtitle>
+    <link rel="self" type="application/atom+xml" href="/blog/tags/jin-jie/atom.xml"/>
+    <link rel="alternate" type="text/html" href="/blog"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2026-11-03T00:00:00+00:00</updated>
+    <id>/blog/tags/jin-jie/atom.xml</id>
+    <entry xml:lang="zh">
+        <title>深入理解 Ownership 與 Borrowing</title>
+        <published>2026-11-03T00:00:00+00:00</published>
+        <updated>2026-11-03T00:00:00+00:00</updated>
+        
+        <author>
+          <name>Unknown</name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="/blog/ownership-and-borrowing/"/>
+        <id>/blog/ownership-and-borrowing/</id>
+        
+        <content type="html" xml:base="/blog/ownership-and-borrowing/">&lt;h1 id=&quot;shen-ru-li-jie-ownership-yu-borrowing&quot;&gt;深入理解 Ownership 與 Borrowing&lt;/h1&gt;
+&lt;p&gt;Ownership 是 Rust 最獨特的設計。它讓編譯器能在&lt;strong&gt;編譯期&lt;/strong&gt;追蹤每個值的生命週期，進而保證記憶體安全。&lt;/p&gt;
+&lt;h2 id=&quot;ownership-san-da-gui-ze&quot;&gt;Ownership 三大規則&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;每個值都有一個擁有者（owner）&lt;/li&gt;
+&lt;li&gt;同一時間只能有一個擁有者&lt;/li&gt;
+&lt;li&gt;當擁有者離開作用域，值會被 drop&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #E1E4E8; background-color: #24292E;&quot; &gt;&lt;code data-lang=&quot;rust&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;{&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;    let&lt;/span&gt;&lt;span&gt; s&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt; =&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt; String&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;::&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;from&lt;/span&gt;&lt;span&gt;(&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt;&amp;quot;hello&amp;quot;&lt;/span&gt;&lt;span&gt;);&lt;/span&gt;&lt;span style=&quot;color: #6A737D;&quot;&gt; // s 是擁有者&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;/span&gt;&lt;span style=&quot;color: #6A737D;&quot;&gt; // 作用域結束，s 被 drop，記憶體釋放&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;yi-dong-move-yu-yi&quot;&gt;移動（Move）語意&lt;/h2&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #E1E4E8; background-color: #24292E;&quot; &gt;&lt;code data-lang=&quot;rust&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;let&lt;/span&gt;&lt;span&gt; s1&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt; =&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt; String&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;::&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;from&lt;/span&gt;&lt;span&gt;(&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt;&amp;quot;hello&amp;quot;&lt;/span&gt;&lt;span&gt;);&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;let&lt;/span&gt;&lt;span&gt; s2&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt; =&lt;/span&gt;&lt;span&gt; s1;&lt;/span&gt;&lt;span style=&quot;color: #6A737D;&quot;&gt; // s1 的所有權移動到 s2&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #6A737D;&quot;&gt;// println!(&amp;quot;{}&amp;quot;, s1); // 編譯錯誤！s1 已失效&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;jie-yong-borrowing&quot;&gt;借用（Borrowing）&lt;/h2&gt;
+&lt;p&gt;不想轉移所有權時，可以使用參考：&lt;/p&gt;
+&lt;pre class=&quot;giallo&quot; style=&quot;color: #E1E4E8; background-color: #24292E;&quot; &gt;&lt;code data-lang=&quot;rust&quot;&gt;&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;fn&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt; calculate_length&lt;/span&gt;&lt;span&gt;(s&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;: &amp;amp;&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;String&lt;/span&gt;&lt;span&gt;)&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt; -&amp;gt;&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt; usize&lt;/span&gt;&lt;span&gt; {&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;    s&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;.&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;len&lt;/span&gt;&lt;span&gt;()&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span&gt;}&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;let&lt;/span&gt;&lt;span&gt; s&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt; =&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt; String&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;::&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;from&lt;/span&gt;&lt;span&gt;(&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt;&amp;quot;hello&amp;quot;&lt;/span&gt;&lt;span&gt;);&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;let&lt;/span&gt;&lt;span&gt; len&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt; =&lt;/span&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt; calculate_length&lt;/span&gt;&lt;span&gt;(&lt;/span&gt;&lt;span style=&quot;color: #F97583;&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span&gt;s);&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;giallo-l&quot;&gt;&lt;span style=&quot;color: #B392F0;&quot;&gt;println!&lt;/span&gt;&lt;span&gt;(&lt;/span&gt;&lt;span style=&quot;color: #9ECBFF;&quot;&gt;&amp;quot;{} 的長度是 {}&amp;quot;&lt;/span&gt;&lt;span&gt;, s, len);&lt;/span&gt;&lt;span style=&quot;color: #6A737D;&quot;&gt; // s 仍然有效&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;ke-bian-jie-yong-gui-ze&quot;&gt;可變借用規則&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;同一時間只能有一個 &lt;code&gt;&amp;amp;mut T&lt;/code&gt;，或任意多個 &lt;code&gt;&amp;amp;T&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;不能同時存在可變與不可變借用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;這些規則由編譯器強制執行，是 Rust 「Fearless Concurrency」的基礎。&lt;/p&gt;
+</content>
+        
+    </entry>
+</feed>
