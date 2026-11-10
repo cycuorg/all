@@ -264,6 +264,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         (await installLocalModule("/downloads/robot.py", "robot"));
         (await installLocalModule("/static/change.py", "change")) ||
         (await installLocalModule("/downloads/change.py", "change"));
+        // 以下針對網頁下有目錄導入程式庫
+        (await installLocalModule("static/robot.py", "robot")) ||
+        (await installLocalModule("downloads/robot.py", "robot"));
+        (await installLocalModule("static/change.py", "change")) ||
+        (await installLocalModule("downloads/change.py", "change"));
       if (!ok) console.warn("robot 模組未安裝（/static 與 /downloads 都失敗）。其餘功能仍可使用。");
     } catch (e) {
       console.warn("install robot 略過:", e);
