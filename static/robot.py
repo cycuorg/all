@@ -33,9 +33,11 @@ class World:
 
     _image_cache = {}
 
-    def __init__(self, width, height, img_path=None):
+    def __init__(self, width, height, img_path=None, target_div_id="brython_div2"):
         self.width = width
         self.height = height
+        # 繪圖容器由使用者指定；預設值保留舊版行為。
+        self.target_div_id = target_div_id
         if img_path is not None:
             global IMG_PATH
             IMG_PATH = img_path
@@ -84,13 +86,17 @@ class World:
         turn_button.style.fontSize = "16px"
         button_container.appendChild(turn_button)
 
-        brython_div = js.document.getElementById("brython_div1")
-        if not brython_div:
-            raise RuntimeError("🚨 'brython_div1' element not found in HTML!")
+        # 將 canvas 與控制按鈕放入呼叫端指定的 HTML div。
+        target_div = js.document.getElementById(self.target_div_id)
+        if not target_div:
+            raise RuntimeError(
+                f"🚨 找不到指定的繪圖容器 id='{self.target_div_id}'。"
+                "請確認 HTML 中存在相同 id 的 div。"
+            )
 
-        brython_div.innerHTML = ""
-        brython_div.appendChild(container)
-        brython_div.appendChild(button_container)
+        target_div.innerHTML = ""
+        target_div.appendChild(container)
+        target_div.appendChild(button_container)
 
         self.move_button = move_button
         self.turn_button = turn_button
@@ -353,13 +359,28 @@ def bind_controls(robot_instance, world):
         print(f"🚨 Failed to register event listeners: {str(e)}")
 
 
-async def run_patrol(width=10, height=10, start_x=1, start_y=1):
+async def run_patrol(
+    width=10,
+    height=10,
+    start_x=1,
+    start_y=1,
+    target_div_id="brython_div2",
+    img_path=None,
+):
     """
     與原腳本相同的巡邏示範：繞外圈一圈後交給鍵盤 / 按鈕控制。
+
+    target_div_id:
+        要放置 canvas 與 Move / Turn 控制按鈕的 HTML div id。
+        預設 "brython_div2"，以維持舊程式的行為。
+
+    img_path:
+        機器人圖片目錄；不指定時使用模組自動判斷的 IMG_PATH。
+
     回傳 (world, robot) 方便進階使用者繼續操作。
     """
     print("🚀 Starting robot patrol simulation...")
-    world = World(width, height)
+    world = World(width, height, img_path=img_path, target_div_id=target_div_id)
     if not await world.setup():
         print("🚨 World setup failed, aborting patrol.")
         return None, None
